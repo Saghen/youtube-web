@@ -1,0 +1,47 @@
+{
+  "name": "youtube-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "NODE_ENV=production webpack",
+    "dev": "webpack serve"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.13.16",
+    "@types/chrome": "^0.0.157",
+    "babel-loader": "^8.2.2",
+    "babel-preset-solid": "^0.26.0",
+    "buffer": "^6.0.3",
+    "copy-webpack-plugin": "^8.1.1",
+    "dotenv-webpack": "^7.0.2",
+    "esbuild": "^0.11.12",
+    "https-browserify": "^1.0.0",
+    "node-fetch": "^2.6.1",
+    "process": "^0.11.10",
+    "request": "^2.88.2",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "timers-browserify": "^2.0.12",
+    "ts-loader": "^9.0.2",
+    "typescript": "^4.2.4",
+    "url-polyfill": "^1.1.12",
+    "webpack": "^5.34.0",
+    "webpack-cli": "^4.6.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "@rturnq/solid-router": "^0.2.6",
+    "lacer": "^0.0.1-rc4",
+    "lese": "^0.7.1",
+    "react-feather": "^2.0.9",
+    "solid-js": "^0.26.1",
+    "solid-styled-components": "^0.26.1",
+    "youtube-search": "^1.1.6",
+    "ytdl-core": "4.4.4"
+  }
+}
