@@ -1,5 +1,6 @@
 import { colors } from '@constants'
-import { Video } from '@libs/yt-parser'
+import { fetch } from '@libs/fetch'
+import { Video } from '@parser/types/types'
 import { Component, createEffect, createSignal } from 'solid-js'
 import { styled } from 'solid-styled-components'
 
@@ -39,12 +40,12 @@ export const Thumbnail: Component<ThumbnailProps> = (props) => {
     if (!getIsHovered()) return
     if (!props.video.richThumbnails?.[0]) return
 
-    const abort = new AbortController()
-    fetch(props.video.richThumbnails[0].url, { signal: abort.signal }).then((res) =>
+    const controller = new AbortController()
+    fetch(props.video.richThumbnails[0].url, { signal: controller.signal }).then((res) =>
       setCanShowRich(res.status !== 404)
     )
 
-    return abort.abort
+    return controller.abort
   })
 
   return (
@@ -53,12 +54,13 @@ export const Thumbnail: Component<ThumbnailProps> = (props) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <img src={props.video.thumbnails[0].url} />
-      {canShowRich() && (
-        <img
-          src={props.video.richThumbnails[0].url}
-          style={{ opacity: +getIsHovered(), transition: 'opacity 0.1s ease 0.2s' }}
-        />
-      )}
+      <img
+        src={props.video.richThumbnails?.[0].url}
+        style={{
+          opacity: canShowRich() && getIsHovered() ? 1 : 0,
+          transition: getIsHovered() && 'opacity 250ms ease 250ms',
+        }}
+      />
     </ThumbnailContainer>
   )
 }

@@ -1,10 +1,10 @@
 import { Component, JSX } from 'solid-js'
 import { styled } from 'solid-styled-components'
-import { Author } from '@libs/yt-parser'
 import { NavLink } from '@rturnq/solid-router'
 import { Link } from '../Typography'
 import { Flex } from '../lese'
 import { colors } from '@constants'
+import { Author } from '@parser/types/types'
 
 // Channel Icon
 type ChannelIconProps = {

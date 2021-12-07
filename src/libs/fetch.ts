@@ -1,5 +1,17 @@
+import { FullVideo, Video } from '@parser/types/types'
+import { parseFullVideoData } from '@parser/videos/full'
+import { parseVideoData } from '@parser/videos/normal'
 import { createCache } from './cache'
-import { FullVideo, parseFullVideoData, parseVideoData, Video } from './yt-parser'
+
+function base64ToArrayBuffer(base64: string) {
+  var binaryString = atob(base64)
+  var len = binaryString.length
+  var bytes = new Uint8Array(len)
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+  return bytes.buffer
+}
 
 type Message = {
   command: string
@@ -21,12 +33,33 @@ export async function sendMessage(message: Message): Promise<any> {
       () => reject(`Command timeout on ${message.command}\n${JSON.stringify(message)}`),
       15000
     )
-    chrome.runtime.sendMessage<Message, MessageResponse>(
-      'dffhhhaheneddbnifbbdicadencillcf',
-      message,
-      ({ type = 'error', data = new Error('Unable to reach proxy') } = {}) =>
-        !type || type === 'error' ? reject(data) : resolve(data)
+    const { port1, port2 } = new MessageChannel()
+    port1.addEventListener(
+      'message',
+      ({ data, ...all }) => {
+        console.log(all)
+        if (data.type === 'success') resolve(data.data)
+        else reject(data.data)
+        port1.close()
+        port2.close()
+      },
+      { once: true }
     )
+    port1.start()
+
+    window.parent.postMessage(message, '*', [port2])
+
+    /*
+    browser.runtime
+      .sendMessage(
+        'dffhhhaheneddbnifbbdicadencillcf',
+        message,
+        ({ type = 'error', data = new Error('Unable to reach proxy') }: MessageResponse = {}) =>
+        !type || type === 'error' ? reject(data) : resolve(data)
+      )
+      .then(resolve)
+      .catch(reject)
+    */
   })
 }
 
@@ -44,20 +77,28 @@ export async function fetch(url: string, { signal, ...options }: FetchOptions = 
 
   return new Promise<Response>((resolve, reject) => {
     signal?.addEventListener('abort', () => {
-      chrome.runtime.sendMessage('dffhhhaheneddbnifbbdicadencillcf', {
+      sendMessage({
         command: 'fetchAbort',
         hash,
       })
       reject('Fetch was aborted')
     })
     sendMessage({ command: 'fetch', url, options, hash })
-      .then((data) => resolve(new Response(data)))
+      .then(({ data, ...init }) => resolve(new Response(base64ToArrayBuffer(data), init)))
       .catch(reject)
   })
 }
 
+export async function fetchInitialData(url = '/', options?: FetchOptions) {
+  return sendMessage({
+    command: url === '/' ? 'getHomePage' : 'getInitialData',
+    url,
+    options,
+  }).then(({ json }) => JSON.parse(json))
+}
+
 export async function fetchHomePage() {
-  return sendMessage({ command: 'getHomePage' }).then(data => JSON.parse(data.json))
+  return sendMessage({ command: 'getHomePage' }).then(({ json }) => JSON.parse(json))
 }
 
 export async function fetchSAPISID() {
@@ -65,11 +106,7 @@ export async function fetchSAPISID() {
 }
 
 export async function fetchAPIKey() {
-  return sendMessage({ command: 'getSAPISIDHash' }).then((data) => data.APIKEY)
-}
-
-export async function fetchFromYouTube(url: string, options?: FetchOptions) {
-  return fetch('https://youtube.com' + url, options)
+  return sendMessage({ command: 'getAPIKey' }).then((data) => data.APIKEY)
 }
 
 export async function fetchFromYoutubeAPI(url: string, options: FetchOptions = {}) {
@@ -94,9 +131,7 @@ export async function fetchFromYoutubeAPI(url: string, options: FetchOptions = {
       },
       ...(options.body ?? {}),
     },
-  })
-    .then((res) => res.json())
-    .then(JSON.parse)
+  }).then((res) => res.json())
 }
 
 type HomePageResult = {
@@ -130,7 +165,7 @@ const parseHomePageContents = (ytData: any) => {
   }
 }
 
-function makeGetNextPage(continuationId) {
+function makeGetNextPage(continuationId: string) {
   return () =>
     fetchFromYoutubeAPI('/browse', { body: { continuation: continuationId } })
       .then(parseHomePageContents)
@@ -155,7 +190,7 @@ export async function getSearch(query: string, opts?: FetchOptions): Promise<Vid
   const cachedValue = searchCache.get(query)
   if (cachedValue) return cachedValue
 
-  const req = fetchFromYouTube('/results?search_query=' + query, opts)
+  const req = fetchInitialData('/results?search_query=' + query, opts)
     .then((ytData: any) =>
       ytData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents
         .map((video: any) => video.videoRenderer)
@@ -182,7 +217,7 @@ export async function getSearch(query: string, opts?: FetchOptions): Promise<Vid
 }
 
 export async function getVideo(id: string, opts?: FetchOptions): Promise<FullVideo> {
-  return fetchFromYouTube('/watch?v=' + id, opts).then((ytData: any) =>
+  return fetchInitialData('/watch?v=' + id, opts).then((ytData: any) =>
     parseFullVideoData(id, ytData.contents.twoColumnWatchNextResults.results.results.contents)
   )
 }

@@ -2,9 +2,9 @@ import { getVideo as fetchVideo } from '@libs/fetch'
 import { ChannelIcon } from '@components/Channel/Icon'
 import { Flex, Grid } from '@components/lese'
 import { Text, TextSecondary, Title } from '@components/Typography'
-import { FullVideo } from '@libs/yt-parser'
+import { FullVideo } from '@parser/types/types'
 import { NavLink } from '@rturnq/solid-router'
-import { Component, Switch, createResource, Match } from 'solid-js'
+import { Component, Switch, createResource, Match, createEffect } from 'solid-js'
 import { styled } from 'solid-styled-components'
 
 const WatchInfo: Component<{ video: FullVideo }> = (props) => {
@@ -13,7 +13,7 @@ const WatchInfo: Component<{ video: FullVideo }> = (props) => {
       column
       xAlign="space-between"
       separation="32px"
-      style={{ 'max-width': '1200px', width: '100%', margin: 'auto', padding: '16px' }}
+      style={{ 'max-width': '1280px', width: '100%', margin: 'auto', padding: '16px' }}
     >
       <Flex separation="12px" column>
         <Title fontSize="1.3em" regular>
@@ -62,6 +62,8 @@ const Watch: Component<WatchProps> = (props) => {
     () => props.id,
     (query) => fetchVideo(query)
   )
+
+  createEffect(() => console.log(video()))
 
   return (
     <VideoContainer>

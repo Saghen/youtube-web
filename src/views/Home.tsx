@@ -3,8 +3,8 @@ import { createSignal } from 'solid-js'
 import { ContentStore } from '@state/content'
 import { Grid } from '@components/lese'
 import { VideoCard } from '@components/Video/Card'
-import { Video } from '@libs/yt-parser'
 import { getHomePage } from '@libs/fetch'
+import { Video } from '@parser/types/types'
 
 export default function Home() {
   const [getVideos, setVideos] = createSignal<Video[]>(ContentStore.get().videos)
@@ -12,12 +12,14 @@ export default function Home() {
 
   getHomePage()
     .then(({ videos, getNextPage }) => {
+      console.log(videos)
       setVideos(videos)
       return getNextPage()
     })
     .then(({ videos, getNextPage }) => {
+      console.log(videos)
       setVideos([...getVideos(), ...videos])
-      setGetNextPage(getNextPage)
+      setGetNextPage(() => getNextPage)
     })
 
   return (

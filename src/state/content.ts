@@ -1,6 +1,5 @@
+import { Video } from '@parser/types/types'
 import { Store } from 'lacer'
-
-import { parseVideoData, Video } from '@libs/yt-parser'
 
 export const ContentStore = new Store<{ videos: Video[] }>({ videos: [] })
 

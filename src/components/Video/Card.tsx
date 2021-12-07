@@ -1,13 +1,12 @@
 import { Component } from 'solid-js'
 
-import { Video } from '@libs/yt-parser'
-
 import { Flex } from '@components/lese'
 
 import { Link, TextSecondary, Title } from '../Typography'
 import { NavLink } from '@rturnq/solid-router'
 import { Thumbnail } from './Thumbnail'
 import { ChannelIcon } from '../Channel/Icon'
+import { Video } from '@parser/types/types'
 
 type VideoCardProps = {
   video: Video
@@ -23,13 +22,15 @@ export const VideoCard: Component<VideoCardProps> = (props) => {
         <Flex separation="12px">
           <ChannelIcon channel={video.author} />
           <Flex column separation="2px">
-            <Title lineClamp={2} style={{ "margin-bottom": "2px"}}>{video.title}</Title>
+            <Title lineClamp={2} style={{ 'margin-bottom': '2px' }}>
+              {video.title}
+            </Title>
             <NavLink href={video.author.url}>
               <Link secondary>{video.author.name}</Link>
             </NavLink>
 
             <TextSecondary>
-              {video.viewCountReadable} • {video.relativePublishDate}
+              {video.viewCountShortReadable} • {video.relativePublishDate}
             </TextSecondary>
           </Flex>
         </Flex>
