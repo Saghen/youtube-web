@@ -7,7 +7,8 @@ const developmentConfig = {
   mode: 'development',
   devtool: 'source-map',
   devServer: {
-    contentBase: path.join(__dirname, 'build'),
+    // TODO: Figure out if we need to replace this. If you haven't noticed, just delete it
+    // contentBase: path.join(__dirname, 'build'),
     compress: true,
     historyApiFallback: true,
 
@@ -45,9 +46,9 @@ module.exports = {
       '@constants': path.resolve(__dirname, 'src/constants.ts'),
       '@components': path.resolve(__dirname, 'src/components/'),
       '@libs': path.resolve(__dirname, 'src/libs/'),
+      '@parser': path.resolve(__dirname, 'src/parser/'),
       '@state': path.resolve(__dirname, 'src/state/'),
       '@views': path.resolve(__dirname, 'src/views/'),
-      url: require.resolve('url-polyfill/'),
     },
     fallback: {
       https: require.resolve('https-browserify/'),

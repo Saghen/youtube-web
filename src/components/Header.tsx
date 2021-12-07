@@ -1,10 +1,8 @@
 import { colors } from '@constants'
-import { NavLink, Redirect, useRouter } from '@rturnq/solid-router'
-import { createState } from 'solid-js'
+import { NavLink, useRouter } from '@rturnq/solid-router'
 import { styled } from 'solid-styled-components'
 import { Flex } from './lese'
 import { SearchBar } from './SearchBar'
-import { Text } from './Typography'
 
 const HamburgerIcon = () => (
   <svg

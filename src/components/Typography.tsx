@@ -48,8 +48,12 @@ const TextPropertyGenerator = propertyGenerator<TextProps>([
   ],
 ])
 
-export const Text = styled('span')<TextProps>`
+export const Text = styled('span')<
+  TextProps & JSX.HTMLAttributes<JSX.HTMLAttributes<HTMLSpanElement>>
+>`
   color: ${({ color }) => color ?? colors.text.primary};
+  letter-spacing: 0.3px;
+  line-height: 18px;
   ${TextPropertyGenerator}
 `
 
@@ -73,9 +77,11 @@ export const TextQuaternary = styled('span')<TextProps>`
   ${TextPropertyGenerator}
 `
 
-export const Title: Component<TextProps & JSX.HTMLAttributes<JSX.HTMLAttributes<HTMLSpanElement>>> = (props) => <Text fontSize="1.1em" bold {...props} />
+export const Title = (props: Parameters<typeof Text>[0]) => (
+  <Text fontSize="1.2em" bold {...props} />
+)
 
-export const Link = styled('span')<
+export const Link = styled(Text)<
   { secondary?: boolean } & TextProps & JSX.AnchorHTMLAttributes<HTMLAnchorElement>
 >`
   color: ${({ secondary }) => (secondary ? colors.text.secondary : colors.text.primary)};

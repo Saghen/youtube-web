@@ -5,7 +5,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -21,6 +21,7 @@
       "@constants": ["constants.ts"],
       "@components/*": ["components/*"],
       "@libs/*": ["libs/*"],
+      "@parser/*": ["parser/*"],
       "@state/*": ["state/*"],
       "@views/*": ["views/*"]
     }

@@ -1,7 +1,7 @@
 import { colors } from '@constants'
 import { getSearch } from '@libs/fetch'
 import { useRoute } from '@rturnq/solid-router'
-import { Component, createEffect, createSignal, createState, on, onCleanup } from 'solid-js'
+import { Component, createEffect, createSignal, on } from 'solid-js'
 import { JSX } from 'solid-js/jsx-runtime'
 import { styled } from 'solid-styled-components'
 import { Flex } from './lese'
@@ -75,11 +75,11 @@ export const SearchBar: Component<SearchBarProps> = (props) => {
         value={getQuery()}
         // @ts-ignore
         onKeyDown={(e) => {
-          e.keyCode === 13 && props.onSearch(e.target.value)
+          e.key === 'Enter' && props.onSearch((e.target as HTMLInputElement).value)
         }}
         // @ts-ignore
         onKeyUp={(e) => {
-          setQuery(e.target.value)
+          setQuery((e.target as HTMLInputElement).value)
         }}
       />
       <SearchBarButton>
