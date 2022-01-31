@@ -1,10 +1,13 @@
 import { colors } from '@constants'
 import { fetch } from '@libs/fetch'
-import { Video } from '@parser/types/types'
+import { Video, VideoType } from '@parser/types'
 import { Component, createEffect, createSignal } from 'solid-js'
 import { styled } from 'solid-styled-components'
+import { Flex } from '@components/lese'
 
-const ThumbnailContainer = styled('div')`
+const TRANSITION = 'opacity 250ms ease 250ms'
+
+const ThumbnailContainer = styled(Flex)`
   width: 100%;
   position: relative;
 
@@ -28,8 +31,35 @@ const ThumbnailContainer = styled('div')`
   }
 `
 
+const Badge = styled('div')<{ background?: string; color?: string }>`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 4px;
+  background-color: ${({ background }) => background ?? colors.bg[200]}dd;
+  color: ${({ color }) => color ?? colors.text.primary};
+  padding: 3px 4px;
+  border-radius: 2px;
+  font-weight: 500;
+  transition: ${TRANSITION};
+`
+
+const DurationContainer = styled('div')`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 4px;
+  background-color: ${colors.bg[200]}dd;
+  color: ${colors.text.primary};
+  padding: 3px 4px;
+  border-radius: 2px;
+  font-weight: 500;
+  transition: ${TRANSITION};
+`
+
 type ThumbnailProps = {
-  video: Video
+  video: Pick<Video, 'type' | 'thumbnails' | 'richThumbnails'> &
+    Partial<Pick<Video, 'lengthReadable'>>
 }
 
 export const Thumbnail: Component<ThumbnailProps> = (props) => {
@@ -50,6 +80,7 @@ export const Thumbnail: Component<ThumbnailProps> = (props) => {
 
   return (
     <ThumbnailContainer
+      relative
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -58,9 +89,19 @@ export const Thumbnail: Component<ThumbnailProps> = (props) => {
         src={props.video.richThumbnails?.[0].url}
         style={{
           opacity: canShowRich() && getIsHovered() ? 1 : 0,
-          transition: getIsHovered() && 'opacity 250ms ease 250ms',
+          transition: getIsHovered() && TRANSITION,
         }}
       />
+      {props.video.type === VideoType.Static && 'lengthReadable' in props.video && (
+        <Badge
+          style={{
+            opacity: canShowRich() && getIsHovered() ? 0 : 1,
+            transition: getIsHovered() && TRANSITION,
+          }}
+        >
+          {props.video.lengthReadable}
+        </Badge>
+      )}
     </ThumbnailContainer>
   )
 }

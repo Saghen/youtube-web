@@ -4,11 +4,11 @@ import { NavLink } from '@rturnq/solid-router'
 import { Link } from '../Typography'
 import { Flex } from '../lese'
 import { colors } from '@constants'
-import { Author } from '@parser/types/types'
+import { Author } from '@parser/types'
 
 // Channel Icon
 type ChannelIconProps = {
-  channel: Author,
+  channel: Author
   size?: number
 }
 
@@ -31,7 +31,25 @@ export const ChannelIconWithName: Component<ChannelIconProps> = (props) => (
   <NavLink href={props.channel.url}>
     <Flex yAlign separation="8px">
       <ChannelIconImage size={props.size} src={props.channel.thumbnail.url} />
-      <Link secondary medium>{props.channel.name}</Link>
+      <Link secondary medium>
+        {props.channel.name}
+      </Link>
     </Flex>
+  </NavLink>
+)
+
+export const ChannelLink: Component<Omit<ChannelIconProps, 'size'>> = (props) => (
+  <NavLink href={props.channel.url}>
+    <Link secondary medium>
+      {props.channel.name}
+    </Link>
+  </NavLink>
+)
+
+export const CompactChannelLink: Component<Omit<ChannelIconProps, 'size'>> = (props) => (
+  <NavLink href={props.channel.url}>
+    <Link secondary>
+      {props.channel.name}
+    </Link>
   </NavLink>
 )

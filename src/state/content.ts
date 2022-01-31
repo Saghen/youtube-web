@@ -1,4 +1,4 @@
-import { Video } from '@parser/types/types'
+import { Video } from '@parser/types'
 import { Store } from 'lacer'
 
 export const ContentStore = new Store<{ videos: Video[] }>({ videos: [] })

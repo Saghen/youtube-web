@@ -1,7 +1,7 @@
 import { getSearch } from '@libs/fetch'
 import { Grid } from '@components/lese'
 import { VideoListItem } from '@components/Video/ListItem'
-import { Video } from '@parser/types/types'
+import { Video } from '@parser/types'
 import { Component, createEffect, createSignal } from 'solid-js'
 import { styled } from 'solid-styled-components'
 

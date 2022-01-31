@@ -1,4 +1,9 @@
-import { Router as RouterCtx, pathIntegration, MatchRoute } from '@rturnq/solid-router'
+import {
+  Router as RouterCtx,
+  MatchRoute,
+  historyIntegration,
+} from '@rturnq/solid-router'
+import { createBrowserHistory } from 'history'
 
 import { Switch } from 'solid-js'
 import { Header } from './components/Header'
@@ -9,7 +14,7 @@ import Search from './views/Search'
 
 export function Router() {
   return (
-    <RouterCtx integration={pathIntegration()}>
+    <RouterCtx integration={historyIntegration(createBrowserHistory())}>
       <Header />
       <Switch fallback={<h1>404</h1>}>
         <MatchRoute end>

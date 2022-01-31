@@ -1,5 +1,15 @@
 import { Icon } from 'react-feather'
-import { Accessibility, ClickTracking, SingleText, Some, Style, Text, Tracking } from '.'
+import {
+  Accessibility,
+  ClickTracking,
+  Renderer,
+  RendererType,
+  SingleText,
+  Some,
+  Style,
+  Text,
+  Tracking,
+} from '.'
 
 /**
  * Looks like commands are structured like
@@ -37,34 +47,33 @@ type ApiCommandMetadata = {
   }
 }
 
-type WebCommand<T> = ClickTracking<{
+type WebCommand = ClickTracking & {
   commandMetadata: ApiCommandMetadata
-}> &
-  T
+}
 
 export type LikeStatuses = 'INDIFFERENT' | 'LIKE' | 'DISLIKE'
 
-type ToggleButtonCommand = ClickTracking<{
+type ToggleButtonCommand = ClickTracking & {
   updateToggleButtonStateCommand: {
     toggled: boolean
     buttonId: string
   }
-}>
+}
 
-type LikeCommand<Type extends 'likeParams' | 'dislikeParams' | 'removeLikeParams'> = WebCommand<{
+type LikeCommand<Type extends 'likeParams' | 'dislikeParams' | 'removeLikeParams'> = WebCommand & {
   likeEndpoint: LikeAction<Type>
-}>
+}
 
-type ShareCommand = WebCommand<{
+type ShareCommand = WebCommand & {
   shareEntityServiceEndpoint: {
-    commands: ClickTracking<{ openPopupAction: OpenPopupAction<SharePanelRenderer> }>[]
+    commands: (ClickTracking & { openPopupAction: OpenPopupAction<Renderer<SharePanel>> })[]
     serializedShareEntity: string
   }
-}>
+}
 
-type AddToPlaylistCommand = WebCommand<{
+type AddToPlaylistCommand = WebCommand & {
   addToPlayListServiceEndpoint: { videoId: string }
-}>
+}
 
 //------------
 // Actions
@@ -82,49 +91,64 @@ type LikeAction<Type extends 'likeParams' | 'dislikeParams' | 'removeLikeParams'
 //------------
 // Renderers
 //------------
-type SharePanelRenderer = {
-  unifiedSharePanelRenderer: Tracking<{ showLoadingSpinner: boolean }>
+type SubscribeButton = {
+  buttonText: Some<Text>
+  channelId: string
+  enabled: boolean
+  /** Omitted for now */
+  notificationPreferenceButton: {
+    subscriptionNotificationToggleButtonRenderer: {}
+  }
+  /** No idea what this is */
+  showPreferences: boolean
+  subscribed: boolean
+  subscribedButtonText: Some<Text>
+  /** No idea what this is */
+  subscribedEntityKey: string
+  type: 'FREE'
+  unsubscribeButtonText: Some<Text>
+  unsubscribedButtonText: Some<Text>
 }
 
-// TODO: Could make generic for other ToggleButtons
-export type ToggleButtonRenderer<DefaultCommands, ToggledCommands> = {
-  toggleButtonRenderer: Tracking<
-    Accessibility<{
-      // FIXME: Something weird with the YT typings for accessibility here
-      accessibility: { label: string }
+export type SharePanel = RendererType<'unifiedSharePane'> &
+  Tracking & { showLoadingSpinner: boolean }
 
-      defaultIcon: Icon
-      // TODO: Need generic
-      defaultServiceEndpoint: ClickTracking<SomeCommands<DefaultCommands>>
-      /** Text that shows up on the button. Ex. like count or "Share" */
-      defaultText: Accessibility<SingleText>
-      defaultTooltip: string
+export type ToggleButton<DefaultCommands, ToggledCommands> = RendererType<'toggleButton'> &
+  Tracking &
+  Accessibility & {
+    // FIXME: Something weird with the YT typings for accessibility here
+    accessibility: { label: string }
 
-      isDisabled: boolean
-      isToggled: boolean
-      style: Style
-      targetId: string
-      // FIXME: Definitely incomplete
-      toggleButtonSupportedData: {
-        toggleButtonIdData: { id: string }
-      }
-      // TODO: Should use generic service endpoints
-      toggledServiceEndpoint: ClickTracking<SomeCommands<ToggledCommands>>
-      toggledStyle: Style
-      /** Text that shows up on the button when toggled. Usually the same as the defaultText */
-      toggledText: Accessibility<SingleText>
-      toggledTooltip: string
-    }>
-  >
-}
+    defaultIcon: Icon
+    // TODO: Need generic
+    defaultServiceEndpoint: ClickTracking<SomeCommands<DefaultCommands>>
+    /** Text that shows up on the button. Ex. like count or "Share" */
+    defaultText: Accessibility<SingleText>
+    defaultTooltip: string
 
-export type LikeToggleButtonRenderer = ToggleButtonRenderer<
+    isDisabled: boolean
+    isToggled: boolean
+    style: Style
+    targetId: string
+    // FIXME: Definitely incomplete
+    toggleButtonSupportedData: {
+      toggleButtonIdData: { id: string }
+    }
+    // TODO: Should use generic service endpoints
+    toggledServiceEndpoint: ClickTracking<SomeCommands<ToggledCommands>>
+    toggledStyle: Style
+    /** Text that shows up on the button when toggled. Usually the same as the defaultText */
+    toggledText: Accessibility<SingleText>
+    toggledTooltip: string
+  }
+
+export type LikeToggleButton = ToggleButton<
   ToggleButtonCommand | LikeCommand<'likeParams' | 'dislikeParams'>,
   LikeCommand<'removeLikeParams'>
 >
 
-type ButtonRenderer<Command> = Tracking<{
-  buttonRenderer: {
+type Button<Command> = RendererType<'button'> &
+  Tracking & {
     accessibilityData: Accessibility
     icon: Icon
     isDisabled: boolean
@@ -134,7 +158,6 @@ type ButtonRenderer<Command> = Tracking<{
     text: Accessibility<SingleText>
     tooltip: string
   }
-}>
 
-export type ShareButtonRenderer = ButtonRenderer<ShareCommand>
-export type AddToPlaylistRenderer = ButtonRenderer<AddToPlaylistCommand>
+export type ShareButtonRenderer = Renderer<Button<ShareCommand>>
+export type AddToPlaylistRenderer = Renderer<Button<AddToPlaylistCommand>>

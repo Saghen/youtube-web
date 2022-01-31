@@ -1,24 +1,26 @@
-import { PrimaryInfo, SecondaryInfo } from '@parser/raw-types'
+import { PrimaryInfo, RawCompactVideo, SecondaryInfo } from '@parser/raw-types/video'
 import { FullVideo } from '@parser/types'
 import {
   combineSomeText,
   mapNavigation,
-  parseText,
+  parseDescription,
   parseViewCount,
-  someToArray,
   toShortHumanReadable,
 } from '@parser/helpers'
-import { pipe, prop } from 'ramda'
+import { prop } from 'ramda'
 import { LikeStatuses } from '@parser/raw-types/buttons'
+import { parseCompactVideoData } from './compact'
+import { getRawVideoType } from './helpers'
 
 export function parseFullVideoData(
   id: string,
   [{ videoPrimaryInfoRenderer: primary }, { videoSecondaryInfoRenderer: secondary }]: [
     { videoPrimaryInfoRenderer: PrimaryInfo },
     { videoSecondaryInfoRenderer: SecondaryInfo }
-  ]
+  ],
+  compactVideos: RawCompactVideo[] = []
 ): FullVideo {
-  console.log(primary, secondary)
+  console.log('FULLVIDEO PARSE', primary, secondary, compactVideos)
 
   const likeButton = primary.videoActions.menuRenderer.topLevelButtons[0].toggleButtonRenderer
   const dislikeButton = primary.videoActions.menuRenderer.topLevelButtons[1].toggleButtonRenderer
@@ -34,6 +36,7 @@ export function parseFullVideoData(
   const subscription = secondary.subscribeButton.subscribeButtonRenderer
   const viewCountRenderer = primary.viewCount.videoViewCountRenderer
 
+  // @ts-ignore
   return {
     id,
     author: {
@@ -48,19 +51,19 @@ export function parseFullVideoData(
     },
 
     title: combineSomeText(primary.title),
-    description: someToArray(secondary.description),
+    description: parseDescription(secondary.description),
 
     likes,
     likeStatus,
 
     relativePublishDate: combineSomeText(primary.dateText),
 
-    viewCount: pipe(combineSomeText, parseViewCount)(viewCountRenderer.viewCount),
+    viewCount: parseViewCount(combineSomeText(viewCountRenderer.viewCount)),
     viewCountReadable: combineSomeText(viewCountRenderer.shortViewCount),
-    viewCountShortReadable: pipe(
-      combineSomeText,
-      parseViewCount,
-      toShortHumanReadable
-    )(viewCountRenderer.viewCount),
+    viewCountShortReadable: toShortHumanReadable(
+      parseViewCount(combineSomeText(viewCountRenderer.viewCount))
+    ),
+
+    relatedVideos: compactVideos.map(parseCompactVideoData),
   }
 }

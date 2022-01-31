@@ -1,33 +1,28 @@
 import { styled } from 'solid-styled-components'
 import { BaseProps, propertyGenerator } from 'lese'
 
-const getTextProperties = propertyGenerator<BaseProps>([
-  'color',
-  'fontSize',
-  ['textAlign', { default: 'center', property: 'text-align' }],
-])
-const getSizeProperties = propertyGenerator<BaseProps>([
-  [
-    'height',
-    ({ responsive, height }) =>
-      responsive ? `max-height: ${height}; height: 100%` : `height: ${height}`,
-  ],
-  [
-    'width',
-    ({ responsive, width }) =>
-      responsive ? `max-width: ${width}; width: 100%` : `width: ${width}`,
-  ],
-])
-const getLayoutProperties = propertyGenerator<BaseProps>([
+const sizes = {
+  compact: '1.2rem',
+  normal: '1.4rem',
+}
+
+const getLayoutProperties = propertyGenerator<BaseProps & { size?: keyof typeof sizes }>([
   ['relative', () => 'position: relative'],
   'margin',
   'padding',
+  'width',
+  'height',
+  [
+    'size',
+    ({ size }) => `
+      font-size: ${sizes[size ?? 'normal']};
+      line-height: 1.8rem;
+    `,
+  ],
 ])
 
-const Base = styled('div')<BaseProps>`
+const Base = styled('div')<BaseProps & { size?: keyof typeof sizes }>`
   ${getLayoutProperties}
-  ${getSizeProperties}
-  ${getTextProperties}
 `
 
 export default Base

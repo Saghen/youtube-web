@@ -1,5 +1,4 @@
-import { Thumbnail } from '../types'
-import { AddToPlaylistRenderer, LikeToggleButtonRenderer, ShareButtonRenderer } from './buttons'
+export * from './video'
 
 export type Accessibility<T = {}> = T extends SomeOptions<infer U, infer V>
   ? SomeOptions<Accessibility<U>, Accessibility<V>>
@@ -11,11 +10,35 @@ export type Accessibility<T = {}> = T extends SomeOptions<infer U, infer V>
       }
     } & T
 
-export type NavigationEndpoint = ClickTracking<{
+/** Used for navigation within Youtube */
+export type BrowseEndpoint = {
   browseEndpoint: {
     browseId: string
     canonicalBaseUrl: string
   }
+}
+
+/** Used for navigation outside of Youtube */
+export type UrlEndpoint = {
+  urlEndpoint: {
+    nofollow: boolean
+    target: string // Only seen 'TARGET_NEW_WINDOW'
+    /** A youtube URL that redirects externally. Should calculate actual url from this */
+    url: string // https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbDNfajZmYWFzN0dCLWg2MmFGZ3ZFUmIyQ2RBd3xBQ3Jtc0trdk1tVEFrNGlqdmNnQXB5VWxuMzVnVDlzbWpVanFFVlVKYk9NeDFnaGhCSUtEeXhoaWVxMU9XVHVOdGVwN1ZMajJWZUgwN0oyNTV4NGZqTkE3cmpEalQzN0JQN3dYSmZBemxYWjhaNU9XQXZCTGJ3cw&q=http%3A%2F%2FExtremitiesPodcast.com
+  }
+}
+
+/** Used for links to other Youtube videos */
+export type WatchEndpoint = {
+  watchEndpoint: {
+    startTimeSeconds: number
+    videoId: string
+    /** Incomplete */
+    watchEndpointSupportedOnesieConfig: {}
+  }
+}
+
+export type NavigationEndpoint<Endpoint> = ClickTracking<{
   commandMetadata: {
     webCommandMetadata: {
       apiUrl: string
@@ -24,7 +47,8 @@ export type NavigationEndpoint = ClickTracking<{
       webPageType: string // "WEB_PAGE_TYPE_CHANNEL" is the only value ive noticed
     }
   }
-}>
+}> &
+  Endpoint
 
 export type ReportFormServiceEndpoint = {
   params: string
@@ -61,15 +85,15 @@ export type ServiceEndpoint<Endpoint extends SignalServiceEndpoint | ReportFormS
       : never)
   >
 
-export type Navigation<T> = T extends SomeOptions<infer U, infer V>
-  ? SomeOptions<Navigation<U>, Navigation<V>>
-  : { navigationEndpoint: NavigationEndpoint } & T
+export type Navigation<T = {}, Endpoint = BrowseEndpoint> = T extends SomeOptions<infer U, infer V>
+  ? SomeOptions<Navigation<U, Endpoint>, Navigation<V, Endpoint>>
+  : { navigationEndpoint: NavigationEndpoint<Endpoint> } & T
 
-export type Tracking<T> = T extends SomeOptions<infer U, infer V>
+export type Tracking<T = {}> = T extends SomeOptions<infer U, infer V>
   ? SomeOptions<Tracking<U>, Tracking<V>>
   : { trackingParams: string } & T
 
-export type ClickTracking<T> = T extends SomeOptions<infer U, infer V>
+export type ClickTracking<T = {}> = T extends SomeOptions<infer U, infer V>
   ? SomeOptions<ClickTracking<U>, ClickTracking<V>>
   : { clickTrackingParams: string } & T
 
@@ -78,10 +102,10 @@ export type ManyText = { text: string }
 export type Text = SomeOptions<SingleText, ManyText>
 
 export type Runs<T> = { runs: T[] }
-export type Some<T extends SomeOptions> = T extends SomeOptions<infer Single, infer Many>
+export type Some<T extends SomeOptions<{}, {}>> = T extends SomeOptions<infer Single, infer Many>
   ? Single | Runs<Many>
   : never
-export type SomeOptions<T = {}, U = T> = { single: T; many: U }
+export type SomeOptions<T, U> = { single: T; many: U }
 
 export type MetadataBadge = Tracking<{
   icon: Icon<'CHECK_CIRCLE_THICK'> // "CHECK_CIRCLE_THICK" is the only value ive noticed
@@ -110,148 +134,8 @@ export type MenuServiceItem<
   }>
 }
 
-export type RawVideo = Navigation<{
-  /** Thumbnails for channel */
-  channelThumbnailSupportedRenderers: {
-    channelThumbnailWithLinkRenderer: Navigation<{
-      thumbnail: {
-        thumbnails: Thumbnail[]
-      }
-    }>
-  }
-
-  /** Short version of description with ellipses */
-  descriptionSnippet: Some<Text>
-
-  /** Length of video info */
-  lengthText: Some<Accessibility<Text>>
-
-  /** Appears to be duplicate of ownerText which has the same info? */
-  longBylineText: Some<Navigation<Text>>
-  /** Appears to be duplicate of ownerText which has the same info? */
-  shortBylineText: Some<Navigation<Text>>
-
-  menu: {
-    // Excluded because I don't need it
-  }
-
-  /** Verified and other badges */
-  ownerBadges: MetadataBadge[]
-
-  /** Channel info */
-  ownerText: Some<Navigation<Text>>
-
-  /** How long ago the video was published. Ex. 3 days ago */
-  publishedTimeText: Some<Text>
-
-  /** Info for animated thumbnail on hover */
-  richThumbnail: {
-    movingThumbnailRenderer: {
-      enabledHoveredLogging: boolean
-      enableOverlay: boolean
-      movingThumbnailDetails: {
-        thumbnails: Thumbnail[]
-        logAsMovingThumbnail: boolean
-      }
-    }
-  }
-
-  /** A more condensed version of view count. ex. 354k views */
-  shortViewCountText: Some<Accessibility<Text>>
-
-  /** Human readable view count. ex. 354,434 views */
-  viewCountText: Some<Text>
-
-  showActionMenu: boolean
-  thumbnail: {
-    thumbnails: Thumbnail[]
-  }
-
-  /**
-   * Includes info for stuff like watch later.
-   * Skipped because it will be unused
-   */
-  thumbnailOverlays: any[]
-
-  title: Some<Accessibility<Text>>
-
-  trackingParams: string
-  videoId: string
-}>
-
-export interface PrimaryInfo {
-  dateText: Some<Text>
-  videoActions: {
-    menuRenderer: Accessibility<
-      Tracking<{
-        items: MenuServiceItem[]
-        topLevelButtons: [
-          LikeToggleButtonRenderer,
-          LikeToggleButtonRenderer,
-          ShareButtonRenderer,
-          AddToPlaylistRenderer
-        ]
-      }>
-    >
-  }
-  sentimentBar: {
-    sentimentBarRenderer: {
-      likeStatus: 'INDIFFERENT'
-      percentIfDisliked: 98
-      percentIfIndifferent: 98
-      percentIfLiked: 98
-      /** likes / dislikes Ex. 2,129 / 30 */
-      tooltip: string
-    }
-  }
-  title: Some<Text>
-  viewCount: {
-    videoViewCountRenderer: {
-      viewCount: Some<Text>
-      shortViewCount: Some<Text>
-    }
-  }
+export type Renderer<T extends Record<string, any> & RendererType<string>> = {
+  [K in `${T['__type']}Renderer`]: T
 }
 
-export interface SecondaryInfo {
-  description: Some<Text>
-  descriptionCollapsedLines: number
-
-  owner: {
-    videoOwnerRenderer: Navigation<{
-      subscriberCountText: Some<Text>
-      subscriptionButton: {
-        type: 'FREE'
-      }
-      thumbnail: {
-        thumbnails: {
-          url: string
-          width: number
-          height: number
-        }[]
-      }
-      title: Some<Navigation<Text>>
-    }>
-  }
-  showLessText: {
-    simpleText: string
-  }
-  showMoreText: {
-    simpleText: string
-  }
-  subscribeButton: {
-    subscribeButtonRenderer: {
-      buttonText: Some<Text>
-      channelId: string
-      enabled: boolean
-      /** Omitted for now */
-      notificationPreferenceButton: {
-        subscriptionNotificationToggleButtonRenderer: {}
-      }
-      /** No idea what this is */
-      showPreferences: boolean
-      subscribed: boolean
-      type: 'FREE'
-    }
-  }
-}
+export type RendererType<Name extends string> = { __type: Name }

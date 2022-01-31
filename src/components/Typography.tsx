@@ -1,4 +1,4 @@
-import { Component, JSX } from 'solid-js'
+import { JSX } from 'solid-js'
 
 import { colors } from '@constants'
 import { styled } from 'solid-styled-components'
@@ -16,7 +16,7 @@ type TextProps = {
   lineHeight?: string
   fixedWidthNumbers?: boolean
 
-  xAlign?: boolean | string // TODO: How to get type of style attribute?
+  align?: boolean | string // TODO: How to get type of style attribute?
 
   upperCase?: boolean
   capitalize?: boolean
@@ -24,6 +24,7 @@ type TextProps = {
   lineClamp?: number
 }
 
+// TODO: Set lineHeight equal to fontSize?
 const TextPropertyGenerator = propertyGenerator<TextProps>([
   ['color', { property: 'color' }],
   ['fontSize', { property: 'font-size' }],
@@ -33,7 +34,9 @@ const TextPropertyGenerator = propertyGenerator<TextProps>([
   ['regular', () => 'font-weight: 400'],
   ['lineHeight', { property: 'line-height' }],
   ['fixedWidthNumbers', () => 'font-variant-numeric: tabular-nums'],
-  ['xAlign', { property: 'text-align', default: 'center' }],
+  // FIXME: Lese bug with { default: 'center', property: 'text-align' }?
+  // ['align', { default: 'center', property: 'text-align' }],
+  ['align', ({ align }) => `text-align: ${align === true ? 'center' : align}`],
   ['upperCase', () => 'text-transform: uppercase'],
   ['capitalize', () => 'text-transform: capitalize'],
   [
@@ -48,47 +51,55 @@ const TextPropertyGenerator = propertyGenerator<TextProps>([
   ],
 ])
 
+const defaultTextStyles = `
+  letter-spacing: 0.3px;
+`
+
 export const Text = styled('span')<
   TextProps & JSX.HTMLAttributes<JSX.HTMLAttributes<HTMLSpanElement>>
 >`
   color: ${({ color }) => color ?? colors.text.primary};
-  letter-spacing: 0.3px;
-  line-height: 18px;
+  ${defaultTextStyles}
   ${TextPropertyGenerator}
 `
 
 export const TextPrimary = styled('span')<TextProps>`
   color: ${() => colors.text.primary};
+  ${defaultTextStyles}
   ${TextPropertyGenerator}
 `
 
 export const TextSecondary = styled('span')<TextProps>`
   color: ${() => colors.text.secondary};
+  ${defaultTextStyles}
   ${TextPropertyGenerator}
 `
 
 export const TextTertiary = styled('span')<TextProps>`
   color: ${() => colors.text.tertiary};
+  ${defaultTextStyles}
   ${TextPropertyGenerator}
 `
 
 export const TextQuaternary = styled('span')<TextProps>`
   color: ${() => colors.text.quaternary};
+  ${defaultTextStyles}
   ${TextPropertyGenerator}
 `
 
 export const Title = (props: Parameters<typeof Text>[0]) => (
-  <Text fontSize="1.2em" bold {...props} />
+  <Text fontSize="1.2em" lineHeight='1.2em' bold {...props} />
 )
 
-export const Link = styled(Text)<
+export const Link = styled('a')<
   { secondary?: boolean } & TextProps & JSX.AnchorHTMLAttributes<HTMLAnchorElement>
 >`
-  color: ${({ secondary }) => (secondary ? colors.text.secondary : colors.text.primary)};
+  color: ${({ secondary }) => (secondary ? colors.text.secondary : colors.text.accent)};
   &:hover {
-    color: ${colors.text.primary};
+    color: ${({ secondary }) => (secondary ? colors.text.primary : colors.text.accent)};
   }
-
   text-decoration: none;
+
+  ${defaultTextStyles}
   ${TextPropertyGenerator}
 `

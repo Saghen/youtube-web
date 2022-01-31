@@ -1,4 +1,4 @@
-import { FullVideo, Video } from '@parser/types/types'
+import { FullVideo, Video } from '@parser/types'
 import { parseFullVideoData } from '@parser/videos/full'
 import { parseVideoData } from '@parser/videos/normal'
 import { createCache } from './cache'
@@ -15,6 +15,7 @@ function base64ToArrayBuffer(base64: string) {
 
 type Message = {
   command: string
+  saggy?: true
   [key: string]: any
 }
 
@@ -28,6 +29,8 @@ export async function sendMessage(message: Message): Promise<any> {
     throw new Error('Command to the proxy must be a string')
   }
 
+  message.saggy = true
+
   return new Promise((resolve, reject) => {
     setTimeout(
       () => reject(`Command timeout on ${message.command}\n${JSON.stringify(message)}`),
@@ -36,8 +39,7 @@ export async function sendMessage(message: Message): Promise<any> {
     const { port1, port2 } = new MessageChannel()
     port1.addEventListener(
       'message',
-      ({ data, ...all }) => {
-        console.log(all)
+      ({ data }) => {
         if (data.type === 'success') resolve(data.data)
         else reject(data.data)
         port1.close()
@@ -101,11 +103,11 @@ export async function fetchHomePage() {
   return sendMessage({ command: 'getHomePage' }).then(({ json }) => JSON.parse(json))
 }
 
-export async function fetchSAPISID() {
+export async function fetchSAPISID(): Promise<string> {
   return sendMessage({ command: 'getSAPISIDHash' }).then((data) => data.SAPISID)
 }
 
-export async function fetchAPIKey() {
+export async function fetchAPIKey(): Promise<string> {
   return sendMessage({ command: 'getAPIKey' }).then((data) => data.APIKEY)
 }
 
@@ -217,7 +219,14 @@ export async function getSearch(query: string, opts?: FetchOptions): Promise<Vid
 }
 
 export async function getVideo(id: string, opts?: FetchOptions): Promise<FullVideo> {
-  return fetchInitialData('/watch?v=' + id, opts).then((ytData: any) =>
-    parseFullVideoData(id, ytData.contents.twoColumnWatchNextResults.results.results.contents)
-  )
+  return fetchInitialData('/watch?v=' + id, opts).then((ytData: any) => {
+    return parseFullVideoData(
+      id,
+      ytData.contents.twoColumnWatchNextResults.results.results.contents,
+      ytData.contents.twoColumnWatchNextResults.secondaryResults.secondaryResults.results
+        .find((result: any) => 'itemSectionRenderer' in result)
+        ?.itemSectionRenderer.contents.map((video: any) => video.compactVideoRenderer)
+        .filter(Boolean)
+    )
+  })
 }
