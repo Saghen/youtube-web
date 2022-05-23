@@ -1,5 +1,5 @@
-import { PrimaryInfo, RawCompactVideo, SecondaryInfo } from '@parser/raw-types/video'
-import { FullVideo } from '@parser/types'
+import { CompactVideo, FullVideo } from '@parser/raw-types/video'
+import { FullVideo, VideoType } from '@parser/types'
 import {
   combineSomeText,
   mapNavigation,
@@ -10,17 +10,15 @@ import {
 import { prop } from 'ramda'
 import { LikeStatuses } from '@parser/raw-types/buttons'
 import { parseCompactVideoData } from './compact'
-import { getRawVideoType } from './helpers'
 
 export function parseFullVideoData(
   id: string,
-  [{ videoPrimaryInfoRenderer: primary }, { videoSecondaryInfoRenderer: secondary }]: [
-    { videoPrimaryInfoRenderer: PrimaryInfo },
-    { videoSecondaryInfoRenderer: SecondaryInfo }
-  ],
-  compactVideos: RawCompactVideo[] = []
+  fullVideo: FullVideo,
+  relatedVideos: CompactVideo[] = []
 ): FullVideo {
-  console.log('FULLVIDEO PARSE', primary, secondary, compactVideos)
+  const [{ videoPrimaryInfoRenderer: primary }, { videoSecondaryInfoRenderer: secondary }] =
+    fullVideo
+  console.log('FULLVIDEO PARSE', primary, secondary, relatedVideos)
 
   const likeButton = primary.videoActions.menuRenderer.topLevelButtons[0].toggleButtonRenderer
   const dislikeButton = primary.videoActions.menuRenderer.topLevelButtons[1].toggleButtonRenderer
@@ -36,8 +34,9 @@ export function parseFullVideoData(
   const subscription = secondary.subscribeButton.subscribeButtonRenderer
   const viewCountRenderer = primary.viewCount.videoViewCountRenderer
 
-  // @ts-ignore
   return {
+    // FIXME: Get video type based on video properties
+    type: VideoType.Static,
     id,
     author: {
       name: combineSomeText(owner.title),
@@ -64,6 +63,6 @@ export function parseFullVideoData(
       parseViewCount(combineSomeText(viewCountRenderer.viewCount))
     ),
 
-    relatedVideos: compactVideos.map(parseCompactVideoData),
+    relatedVideos: relatedVideos.map(parseCompactVideoData),
   }
 }

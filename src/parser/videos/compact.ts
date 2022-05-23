@@ -1,4 +1,4 @@
-import { RawCompactVideo } from '@parser/raw-types/video'
+import { CompactVideo } from '@parser/raw-types/video'
 import { CompactVideo, VideoType } from '@parser/types'
 import {
   combineSomeText,
@@ -10,7 +10,7 @@ import {
 } from '@parser/helpers'
 import { getRawVideoType } from './helpers'
 
-export function parseCompactVideoData(video: RawCompactVideo): CompactVideo {
+export function parseCompactVideoData(video: CompactVideo): CompactVideo {
   const videoType = getRawVideoType(video)
 
   return {

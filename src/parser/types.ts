@@ -1,5 +1,4 @@
-import { string } from 'fp-ts'
-import { LikeStatuses } from './raw-types/buttons'
+import { LikeStatuses } from './raw-types/components/button'
 
 export enum VideoType {
   Live = 'live',

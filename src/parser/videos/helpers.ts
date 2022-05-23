@@ -1,13 +1,8 @@
-import { Tracking } from '@parser/raw-types'
+import { MetadataBadge, Renderer } from '@parser/raw-types'
 import { VideoType } from '@parser/types'
 
 export function getRawVideoType(video: {
-  badges?: {
-    metadataBadgeRenderer: Tracking<{
-      style: string
-      label: string
-    }>
-  }[]
+  badges?: Renderer<MetadataBadge<string, string>>[]
 }): VideoType {
   const isLive =
     'badges' in video &&

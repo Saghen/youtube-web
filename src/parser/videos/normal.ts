@@ -6,14 +6,14 @@ import {
   humanReadableToNumber,
   toShortHumanReadable,
 } from '@parser/helpers'
-import { RawVideo } from 'parser/raw-types/video'
+import { Video } from 'parser/raw-types/video'
 import { Video, VideoType } from '@parser/types'
 import { getRawVideoType } from './helpers'
 
 /**
  * Currently cannot parse/doesn't handle live streams and upcoming events
  */
-export function parseVideoData(video: RawVideo): Video {
+export function parseVideoData(video: Video): Video {
   const videoType = getRawVideoType(video)
   return {
     type: videoType,
