@@ -1,9 +1,9 @@
 import { Renderer } from '../core'
 import { Tab } from './tab'
 
-export type TwoColumnBrowseResults<Content extends Renderer> = Renderer<
+export type TwoColumnBrowseResults<Tabs extends Renderer> = Renderer<
   'twoColumnBrowseResults',
-  { tabs: Tab<undefined, Content> }
+  { tabs: Tabs }
 >
 
 export type TwoColumnWatchNext<Item extends Renderer, SecondaryItem extends Renderer> = {

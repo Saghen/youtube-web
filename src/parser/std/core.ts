@@ -4,6 +4,7 @@ import { User } from './components/user'
 import { Playlist } from './playlist'
 import { Video } from './video'
 import {  } from 'ix/iterable'
+import { Player } from './player'
 
 export type LikeStatus = 'INDIFFERENT' | 'LIKE' | 'DISLIKE'
 
@@ -49,30 +50,27 @@ export type Provider = {
   getRecommended?: () => AsyncIterable<(Video | { title: string; videos: Video[] })[]>
 
   // TODO:
-  getPlayer: (id: string) => Promise<Player>
-  getVideo: (id: string) => Promise<Video>
+  getPlayer: (videoId: string) => Promise<Player>
+  getVideo: (videoId: string) => Promise<Video>
   listVideos: (
     resourceType: ResourceType.Channel | ResourceType.Playlist
   ) => (id: string) => AsyncIterable<Video[]>
-  setVideoLikeStatus?: (id: string) => (likeStatus: LikeStatus) => Promise<void>
+  setVideoLikeStatus?: (videoId: string) => (likeStatus: LikeStatus) => Promise<void>
 
-  getUser: (id: string) => Promise<User>
+  getUser: (userId: string) => Promise<User>
   listFollowedUsers: IdIfNotSelf<ResourceType.User, AsyncIterable<User[]>>
   listLiveFollowedUsers?: IdIfNotSelf<ResourceType.User, AsyncIterable<User[]>>
   setUserFollowed: (id: string) => (isFollowing: boolean) => Promise<void>
 
-  getPlaylist: (id: string) => Promise<Playlist>
+  getPlaylist: (playListId: string) => Promise<Playlist>
   listPlaylists: IdIfNotSelf<ResourceType.User, AsyncIterable<Playlist[]>>
 
-  getChannel: (id: string) => Promise<Channel>
+  getChannel: (channelId: string) => Promise<Channel>
 
-  getComment?: (id: string) => Promise<Comment>
-  listComments?: (id: string) => AsyncIterable<Comment[]>
+  getComment?: (commentId: string) => Promise<Comment>
+  listComments?: (videoId: string) => AsyncIterable<Comment[]>
 
   search: <Type extends ResourceType>(
     resourceType: (ResourceType.Channel | ResourceType.Playlist | ResourceType.Video)[]
   ) => (query: string) => AsyncIterable<Resource<Type>[]>
 }
-
-const provider: Provider = {}
-const iterator = provider.search([ResourceType.Channel])('hello')

@@ -13,7 +13,7 @@ import {
   UrlEndpoint,
   WatchEndpoint,
 } from '@parser/yt/utility/navigation'
-import { CompactVideo, Video, VideoPrimaryInfo, VideoSecondaryInfo } from '@parser/yt/video'
+import { CompactVideo, BaseVideo, VideoPrimaryInfo, VideoSecondaryInfo } from '@parser/yt/video'
 import { BaseResponse, Endpoint, fetchYt } from '../core'
 
 export const getVideo = (videoId: string): Promise<VideoResponse> =>
@@ -41,7 +41,6 @@ type VideoResponse = BaseResponse & {
 
   overlay: Renderer<'tooltip', { TODO: true }>
   engagementPanels: Renderer<'engagementPanelSectionList', { TODO: true }>
-  topbar: Renderer<'desktopTopbar', { TODO: true }>
 }
 
 type WatchNextEndScreen<Item extends Renderer> = Renderer<'watchNextEndScreen', { results: Item[] }>
@@ -49,7 +48,7 @@ type WatchNextEndScreen<Item extends Renderer> = Renderer<'watchNextEndScreen', 
 type EndScreenVideo = Renderer<
   'endScreenVideo',
   Pick<
-    Video,
+    BaseVideo,
     | 'videoId'
     | 'thumbnail'
     | 'title'
@@ -90,7 +89,7 @@ type PlayerOverlayAutoplay = Renderer<
     webShowNewAutonavCountdown?: boolean
     webShowBigThumbnailEndscreen?: boolean
   } & Pick<
-    Video,
+    BaseVideo,
     'title' | 'videoId' | 'publishedTimeText' | 'shortViewCountText' | 'thumbnailOverlays'
   >
 >

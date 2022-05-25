@@ -1,6 +1,6 @@
 import * as std from '../../std'
 
-import { Video } from './regular'
+import { BaseVideo } from './regular'
 import { getVideoType } from '.'
 import { combineSomeText } from '../components/text'
 import { Thumbnail } from '../components/thumbnail'
@@ -56,7 +56,7 @@ export type CompactVideo = Renderer<
       /** Thumbnails for channel */
       channelThumbnail: Thumbnail
     } & Pick<
-      Video,
+      BaseVideo,
       | 'badges'
       | 'lengthText'
       | 'longBylineText'

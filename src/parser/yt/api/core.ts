@@ -67,4 +67,5 @@ export type ResponseContext = {
 export type BaseResponse = {
   responseContext: ResponseContext
   frameworkUpdates: Record<string, any>
+  topbar?: Record<string, any>
 }

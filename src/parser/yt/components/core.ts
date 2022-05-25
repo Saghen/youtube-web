@@ -30,7 +30,7 @@ export type HorizontalList<Item extends Renderer> = Renderer<
   }
 >
 
-export type ItemSection<Content extends Renderer, Identifier extends string> = Renderer<
+export type ItemSection<Content extends Renderer, Identifier extends string | undefined> = Renderer<
   'itemSection',
   Tracking & {
     contents: Content[]

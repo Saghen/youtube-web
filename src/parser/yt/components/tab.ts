@@ -1,14 +1,24 @@
-import { CommandMetadata, Endpoint, ExtractCommand, Renderer } from '../types/core'
+import { CommandMetadata, Endpoint, ExtractCommand, Renderer } from '../core'
 import { BrowseEndpoint, Navigation } from '../utility/navigation'
 
 // FIXME: Only checked to cover tab found on channels
-export type Tab<Title extends string | undefined, Content extends Renderer> = Renderer<
+export type Tab<Title extends string, Content extends Renderer, Selected extends boolean> = Renderer<
   'tab',
   {
-    content?: Content
-    selected: boolean
+    content: Selected extends true ? Content : undefined
+    selected: Selected
     title: Title
-  } & ExtractCommand<Endpoint<'', CommandMetadata, BrowseEndpoint>>
+    endpoint: CommandMetadata & BrowseEndpoint
+  }
+>
+
+export type TabWithIdentifier<Identifier extends string, Content extends Renderer> = Renderer<
+  'tab',
+  {
+    selected: boolean
+    content: Content
+    tabIdentifier: Identifier
+  }
 >
 
 // FIXME: Only checked to cover expandable tab found on channels

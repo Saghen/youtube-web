@@ -1,14 +1,14 @@
-import { SubscribeButton } from "../components/button"
-import { Grid, HorizontalList, ItemSection, SectionList, Shelf } from "../components/core"
-import { ExpandableTab, Tab } from "../components/tab"
-import { Thumbnail } from "../components/thumbnail"
-import { Command, Renderer, Some } from "../core"
-import { Accessibility } from "../utility/accessibility"
-import { Navigation, NavigationSome, UrlEndpoint, WatchEndpoint } from "../utility/navigation"
-import { Text } from "../components/text"
-import { ClickTracking } from "../utility/tracking"
-import { GridVideo } from "../video/types"
-import { MetadataBadge } from "../components/badge"
+import { SubscribeButton } from '../components/button'
+import { Grid, HorizontalList, ItemSection, SectionList, Shelf } from '../components/core'
+import { ExpandableTab, Tab } from '../components/tab'
+import { Thumbnail } from '../components/thumbnail'
+import { Command, Renderer, Some } from '../core'
+import { Accessibility } from '../utility/accessibility'
+import { Navigation, NavigationSome, UrlEndpoint, WatchEndpoint } from '../utility/navigation'
+import { Text } from '../components/text'
+import { ClickTracking } from '../utility/tracking'
+import { GridVideo } from '../video/types'
+import { MetadataBadge } from '../components/badge'
 
 export type Channel = {
   tabs: (
@@ -23,7 +23,7 @@ export type Channel = {
   )[]
 }
 
-enum ChannelTabNames {
+export enum ChannelTabName {
   Home = 'Home',
   Videos = 'Videos',
   Playlists = 'Playlists',
@@ -34,20 +34,54 @@ enum ChannelTabNames {
   Search = 'Search',
 }
 
-type HomeTab = Tab<
-  ChannelTabNames.Home,
-  SectionList<ChannelVideoPlayer | Shelf<HorizontalList<GridVideo> | HorizontalList<GridChannel>>>
+type IsTabName<Expected extends ChannelTabName, Received extends ChannelTabName> = Received extends Expected ? true : false
+
+export type ChannelTab<Selected extends ChannelTabName> =
+  | HomeTab<IsTabName<ChannelTabName.Home, Selected>>
+  | VideosTab<IsTabName<ChannelTabName.Videos, Selected>>
+  | PlaylistsTab<IsTabName<ChannelTabName.Playlists, Selected>>
+  | CommunityTab<IsTabName<ChannelTabName.Community, Selected>>
+  | StoreTab<IsTabName<ChannelTabName.Store, Selected>>
+  | ChannelsTab<IsTabName<ChannelTabName.Channels, Selected>>
+  | AboutTab<IsTabName<ChannelTabName.About, Selected>>
+  | SearchExpandableTab
+
+export type HomeTab<Selected extends boolean> = Tab<
+  ChannelTabName.Home,
+  SectionList<ChannelVideoPlayer | Shelf<HorizontalList<GridVideo> | HorizontalList<GridChannel>>>,
+  Selected
 >
-type VideosTab = Tab<
-  ChannelTabNames.Videos,
-  SectionList<ItemSection<Grid<GridVideo | ContinuationItem>>>
+export type VideosTab<Selected extends boolean> = Tab<
+  ChannelTabName.Videos,
+  SectionList<ItemSection<Grid<GridVideo | ContinuationItem>, undefined>>,
+  Selected
 >
-type PlaylistsTab = Tab<ChannelTabNames.Playlists, Renderer<'TODO'>>
-type CommunityTab = Tab<ChannelTabNames.Community, Renderer<'TODO'>>
-type StoreTab = Tab<ChannelTabNames.Store, Renderer<'TODO'>>
-type ChannelsTab = Tab<ChannelTabNames.Channels, Renderer<'TODO'>>
-type AboutTab = Tab<ChannelTabNames.About, Renderer<'TODO'>>
-type SearchExpandableTab = ExpandableTab<ChannelTabNames.Search>
+export type PlaylistsTab<Selected extends boolean> = Tab<
+  ChannelTabName.Playlists,
+  Renderer<'TODO'>,
+  Selected
+>
+export type CommunityTab<Selected extends boolean> = Tab<
+  ChannelTabName.Community,
+  Renderer<'TODO'>,
+  Selected
+>
+export type StoreTab<Selected extends boolean> = Tab<
+  ChannelTabName.Store,
+  Renderer<'TODO'>,
+  Selected
+>
+export type ChannelsTab<Selected extends boolean> = Tab<
+  ChannelTabName.Channels,
+  Renderer<'TODO'>,
+  Selected
+>
+export type AboutTab<Selected extends boolean> = Tab<
+  ChannelTabName.About,
+  Renderer<'TODO'>,
+  Selected
+>
+export type SearchExpandableTab = ExpandableTab<ChannelTabName.Search>
 
 // TODO: Move
 type ContinuationItem = Renderer<
@@ -87,4 +121,3 @@ type ChannelVideoPlayer = Renderer<
     viewCountText: Some<Text>
   }
 >
-

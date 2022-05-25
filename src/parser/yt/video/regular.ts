@@ -26,7 +26,7 @@ import {
 /**
  * Currently cannot parse/doesn't handle live streams and upcoming events
  */
-export function processVideoData(video: Video): Video {
+export function processVideoData(video: BaseVideo): BaseVideo {
   const videoType = getVideoType(video)
   return {
     type: videoType,
@@ -58,10 +58,10 @@ export function processVideoData(video: Video): Video {
       lengthReadable: combineSomeText(video.lengthText),
       relativePublishDate: combineSomeText(video.publishedTimeText),
     }),
-  } as unknown as Video
+  } as unknown as BaseVideo
 }
 
-export type Video = Navigation<WatchEndpoint> & {
+export type BaseVideo = Navigation<WatchEndpoint> & {
   /** Badges that show on the thumbnail. Used to detect live streams */
   badges?: Renderer<MetadataBadge>[]
 
@@ -116,3 +116,5 @@ export type Video = Navigation<WatchEndpoint> & {
   trackingParams: string
   videoId: string
 }
+
+export type Video = Renderer<'video', BaseVideo>

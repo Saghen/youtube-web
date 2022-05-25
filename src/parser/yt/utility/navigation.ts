@@ -69,7 +69,10 @@ export type Navigation<NavigationEndpoint extends Endpoint = BrowseEndpoint> = E
 >
 
 /** Used for navigation within Youtube */
-export type BrowseEndpoint = Endpoint<'browse', { browseId: string; canonicalBaseUrl?: string }>
+export type BrowseEndpoint = Endpoint<
+  'browse',
+  { browseId: string; params?: string; canonicalBaseUrl?: string }
+>
 
 /** Used for links to other Youtube videos */
 export type WatchEndpoint = Endpoint<

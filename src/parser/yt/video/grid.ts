@@ -1,7 +1,7 @@
 import * as std from '../../std'
 
 import { findRenderer, Renderer } from '../core'
-import { Video } from './regular'
+import { BaseVideo } from './regular'
 import { combineSomeText } from '../components/text'
 import { durationTextToSeconds, humanReadableToNumber, toShortHumanReadable } from '../helpers'
 
@@ -35,7 +35,7 @@ export function processGridVideoData({ gridVideoRenderer: video }: GridVideo): s
 export type GridVideo = Renderer<
   'gridVideo',
   Pick<
-    Video,
+    BaseVideo,
     | 'badges'
     | 'menu'
     | 'navigationEndpoint'
