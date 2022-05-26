@@ -1,4 +1,4 @@
-import { LikeStatus } from '../../std'
+import { LikeStatus } from '../../../std'
 import {
   ServiceEndpoint,
   Endpoint,
@@ -6,7 +6,7 @@ import {
   OptionalSubCommand,
   Action,
   CommandMetadata,
-} from '../core'
+} from '../../core/internals'
 import { OpenPopupAction } from './actions'
 import { WatchEndpoint } from './navigation'
 

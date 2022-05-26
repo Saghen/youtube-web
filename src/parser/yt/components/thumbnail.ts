@@ -1,6 +1,6 @@
-import { Renderer, Some } from '../core'
-import { Accessibility } from '../utility/accessibility'
-import { Navigation } from '../utility/navigation'
+import { Renderer, Some } from '../core/internals'
+import { Accessibility } from './utility/accessibility'
+import { Navigation } from './utility/navigation'
 import { Text } from './text'
 
 export type ThumbnailVariant = {

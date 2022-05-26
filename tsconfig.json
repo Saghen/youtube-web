@@ -21,7 +21,11 @@
       "@constants": ["constants.ts"],
       "@components/*": ["components/*"],
       "@libs/*": ["libs/*"],
-      "@parser/*": ["parser/*"],
+
+      "@std": ["parser/std/index.ts"],
+      "@std/*": ["parser/std/*"],
+      "@yt": ["parser/yt/index.ts"],
+      "@yt/*": ["parser/yt/*"],
       "@state/*": ["state/*"],
       "@views/*": ["views/*"]
     }

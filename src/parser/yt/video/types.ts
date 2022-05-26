@@ -1,19 +1,10 @@
-import { MetadataBadge } from '../components/badge'
-import { LikeToggleButton, SubscribeButton } from '../components/button'
+import { LikeToggleButton } from '../components/button'
 import { Text } from '../components/text'
-import { ChannelThumbnailWithLink, MovingThumbnail, Thumbnail } from '../components/thumbnail'
-import { Renderer, Some } from '../core'
-import { Accessibility } from '../utility/accessibility'
-import {
-  BrowseEndpoint,
-  Navigation,
-  NavigationSome,
-  UrlEndpoint,
-  WatchEndpoint,
-} from '../utility/navigation'
-import { Tracking } from '../utility/tracking'
-
-
+import { Thumbnail } from '../components/thumbnail'
+import { Renderer, Some } from '../core/internals'
+import { Accessibility } from '../components/utility/accessibility'
+import { BrowseEndpoint, Navigation, NavigationSome } from '../components/utility/navigation'
+import { Tracking } from '../components/utility/tracking'
 
 export type VideoViewCount = Renderer<
   'videoViewCount',
@@ -27,10 +18,10 @@ export type SentimentBar = Renderer<
   'sentimentBar',
   {
     likeStatus: 'INDIFFERENT'
-    percentIfDisliked: 98
-    percentIfIndifferent: 98
-    percentIfLiked: 98
-    /** likes / dislikes Ex. 2,129 / 30 */
+    percentIfDisliked: number
+    percentIfIndifferent: number
+    percentIfLiked: number
+    /** likes / dislikes Ex. 2,129 / 30. TODO: Check if this changed since dislikes disabled */
     tooltip: string
   }
 >
@@ -47,8 +38,8 @@ type Menu<Items, TopLevelButtons> = Renderer<
 export type VideoActions = Menu<
   MenuServiceItem[],
   [
-    Renderer<LikeToggleButton>,
-    Renderer<LikeToggleButton>,
+    LikeToggleButton,
+    LikeToggleButton,
     ShareButtonRenderer,
     AddToPlaylistRenderer
   ]
@@ -65,5 +56,3 @@ export type VideoOwner = Renderer<
     title: Some<NavigationSome<BrowseEndpoint, Text>>
   }
 >
-
-

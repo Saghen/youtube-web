@@ -1,7 +1,7 @@
-import { Renderer, Some } from '../types/core'
-import { Navigation } from '../utility/navigation'
+import { Renderer, Some } from '../core/internals'
+import { Navigation } from './utility/navigation'
 import { Text } from './text'
-import { Tracking } from '../utility/tracking'
+import { Tracking } from './utility/tracking'
 
 export type Shelf<Content extends Renderer> = Renderer<
   'shelf',

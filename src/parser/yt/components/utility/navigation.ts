@@ -1,5 +1,5 @@
 import { curry } from 'ramda'
-import { CommandMetadata, Endpoint, headOfSome, Some, SomeOptions } from '../core'
+import { CommandMetadata, Endpoint, headOfSome, Some, SomeOptions } from '../../core/internals'
 
 /** General function for converting a navigation endpoint to a relative or absolute url */
 export const getNavigationUrl = <

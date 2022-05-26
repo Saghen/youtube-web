@@ -1,29 +1,35 @@
-import * as std from "../../std"
-
-import { prop } from "ramda"
-import { SubscribeButton } from "../components/button"
-import { combineSomeText, parseDescription, Text } from "../components/text"
-import { Renderer, Some } from "../core"
-import { parseViewCount, toShortHumanReadable } from "../helpers"
-import { mapNavigation, NavigationSome, UrlEndpoint, WatchEndpoint } from "../utility/navigation"
-import { SentimentBar, VideoActions, VideoOwner, VideoViewCount } from "./types"
-import { processCompactVideo, CompactVideo } from './compact'
-import { LikeStatuses } from "../utility/endpoints"
+import * as std from '@std'
+import { SubscribeButton } from '@yt/components/button'
+import { combineSomeText, parseDescription, Text } from '@yt/components/text'
+import {
+  mapNavigation,
+  NavigationSome,
+  UrlEndpoint,
+  WatchEndpoint,
+} from '@yt/components/utility/navigation'
+import { parseViewCount } from '@yt/core/helpers'
+import { headOfSome, Renderer, Some } from '@yt/core/internals'
+import { LikeStatus, ProviderName } from 'parser/std'
+import { prop } from 'ramda'
+import { VideoDetails } from '../api'
+import { SentimentBar, VideoActions, VideoOwner, VideoViewCount } from '../types'
+import { relativeToAbsoluteDate } from './helpers'
 
 export function processFullVideo(
   id: string,
   fullVideo: FullVideo,
-  relatedVideos: CompactVideo[] = []
+  videoDetails: VideoDetails
 ): std.Video {
   const [{ videoPrimaryInfoRenderer: primary }, { videoSecondaryInfoRenderer: secondary }] =
     fullVideo
-  console.log('FULLVIDEO PARSE', primary, secondary, relatedVideos)
 
   const likeButton = primary.videoActions.menuRenderer.topLevelButtons[0].toggleButtonRenderer
   const dislikeButton = primary.videoActions.menuRenderer.topLevelButtons[1].toggleButtonRenderer
-  const likes = parseViewCount(likeButton.defaultText.accessibility.accessibilityData.label)
+  const likeCount = parseViewCount(
+    headOfSome(likeButton.defaultText).accessibility.accessibilityData.label
+  )
 
-  const likeStatus: LikeStatuses = likeButton.isToggled
+  const likeStatus: LikeStatus = likeButton.isToggled
     ? 'LIKE'
     : dislikeButton.isToggled
     ? 'DISLIKE'
@@ -34,35 +40,31 @@ export function processFullVideo(
   const viewCountRenderer = primary.viewCount.videoViewCountRenderer
 
   return {
+    provider: ProviderName.YT,
+
     // FIXME: Get video type based on video properties
     type: std.VideoType.Static,
     id,
     author: {
       name: combineSomeText(owner.title),
       id: mapNavigation(prop('id'), owner),
-      url: `/c/${mapNavigation(prop('id'), owner)}`,
-      thumbnail: owner.thumbnail.thumbnails[0],
-
-      subscribed: subscription.subscribed,
-      subscriberCount: combineSomeText(owner.subscriberCountText),
-      type: subscription.type,
+      avatar: owner.thumbnail.thumbnails,
+      followed: subscription.subscribed,
+      followerCount: Number(combineSomeText(owner.subscriberCountText)),
     },
 
     title: combineSomeText(primary.title),
+    shortDescription: videoDetails.shortDescription,
     description: parseDescription(secondary.description),
 
-    likes,
+    staticThumbnail: videoDetails.thumbnail.thumbnails,
+
+    likeCount,
     likeStatus,
-
-    relativePublishDate: combineSomeText(primary.dateText),
-
     viewCount: parseViewCount(combineSomeText(viewCountRenderer.viewCount)),
-    viewCountReadable: combineSomeText(viewCountRenderer.shortViewCount),
-    viewCountShortReadable: toShortHumanReadable(
-      parseViewCount(combineSomeText(viewCountRenderer.viewCount))
-    ),
 
-    relatedVideos: relatedVideos.map(processCompactVideo),
+    length: Number(videoDetails.lengthSeconds),
+    publishDate: relativeToAbsoluteDate(combineSomeText(primary.dateText)),
   }
 }
 
@@ -88,6 +90,6 @@ export type VideoSecondaryInfo = Renderer<
     owner: VideoOwner
     showLessText: Some<Text>
     showMoreText: Some<Text>
-    subscribeButton: Renderer<SubscribeButton>
+    subscribeButton: SubscribeButton
   }
 >

@@ -1,6 +1,7 @@
+import { DescriptionChunk, DescriptionChunkType } from '@std/components/description'
 import { dissoc, join, map, pipe, prop } from 'ramda'
-import { Some, SomeOptions, someToArray } from '../core'
-import { Navigation, UrlEndpoint, WatchEndpoint } from '../utility/navigation'
+import { Some, SomeOptions, someToArray } from '../core/internals'
+import { getNavigationUrl, Navigation, UrlEndpoint, WatchEndpoint } from './utility/navigation'
 
 export function parseText<T extends SingleText, U extends ManyText>(
   value: T | U
@@ -26,14 +27,15 @@ export const parseDescription = <
   U extends Navigation<UrlEndpoint | WatchEndpoint> & ManyText
 >(
   value: Some<SomeOptions<T, U>>
-): { text: string; href?: string }[] =>
+): DescriptionChunk[] =>
   someTextToArray(value).map((run) =>
     'navigationEndpoint' in run
       ? {
-          text: run.text,
+          type: DescriptionChunkType.Text,
+          content: run.text,
           href: getNavigationUrl(run),
         }
-      : { text: run.text }
+      : { type: DescriptionChunkType.Text, content: run.text }
   )
 
 export type SingleText = { simpleText: string }

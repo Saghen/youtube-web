@@ -1,4 +1,4 @@
-import { SomeOptions } from '../core'
+import { SomeOptions } from '../../core/internals'
 
 // TODO: Adopt the renderer, endpoint, command system?
 // TODO: Remove this file since we don't want tracking info? Or do we?

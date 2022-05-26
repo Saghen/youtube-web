@@ -1,4 +1,4 @@
-import { SomeOptions } from "../core"
+import { SomeOptions } from "../../core/internals"
 
 export type Accessibility<T = {}> = T extends SomeOptions<infer U, infer V>
   ? SomeOptions<Accessibility<U>, Accessibility<V>>

@@ -1,27 +1,25 @@
-import { SubscribeButton } from '../components/button'
-import { Grid, HorizontalList, ItemSection, SectionList, Shelf } from '../components/core'
-import { ExpandableTab, Tab } from '../components/tab'
-import { Thumbnail } from '../components/thumbnail'
-import { Command, Renderer, Some } from '../core'
-import { Accessibility } from '../utility/accessibility'
-import { Navigation, NavigationSome, UrlEndpoint, WatchEndpoint } from '../utility/navigation'
-import { Text } from '../components/text'
-import { ClickTracking } from '../utility/tracking'
-import { GridVideo } from '../video/types'
 import { MetadataBadge } from '../components/badge'
+import { SubscribeButton } from '../components/button'
+import { HorizontalList, ItemSection, SectionList, Shelf } from '../components/core'
+import { Grid } from '../components/grid'
+import { ExpandableTab, Tab } from '../components/tab'
+import { Text } from '../components/text'
+import { Thumbnail } from '../components/thumbnail'
+import { TwoColumnBrowseResults } from '../components/two-column'
+import { Accessibility } from '../components/utility/accessibility'
+import {
+  Navigation,
+  NavigationSome,
+  UrlEndpoint,
+  WatchEndpoint,
+} from '../components/utility/navigation'
+import { ClickTracking } from '../components/utility/tracking'
+import { Command, Renderer, Some } from '../core/internals'
+import { GridVideo } from '../video/processors/grid'
 
-export type Channel = {
-  tabs: (
-    | HomeTab
-    | VideosTab
-    | PlaylistsTab
-    | CommunityTab
-    | ChannelsTab
-    | AboutTab
-    | StoreTab
-    | SearchExpandableTab
-  )[]
-}
+export type Channel<SelectedTab extends ChannelTabName> = TwoColumnBrowseResults<
+  ChannelTab<SelectedTab>
+>
 
 export enum ChannelTabName {
   Home = 'Home',
@@ -34,7 +32,10 @@ export enum ChannelTabName {
   Search = 'Search',
 }
 
-type IsTabName<Expected extends ChannelTabName, Received extends ChannelTabName> = Received extends Expected ? true : false
+type IsTabName<
+  Expected extends ChannelTabName,
+  Received extends ChannelTabName
+> = Received extends Expected ? true : false
 
 export type ChannelTab<Selected extends ChannelTabName> =
   | HomeTab<IsTabName<ChannelTabName.Home, Selected>>

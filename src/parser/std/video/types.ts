@@ -1,6 +1,6 @@
 import { User } from '../components/user'
 import { Image } from '../components/image'
-import { ProviderName } from '..'
+import { LikeStatus, ProviderName } from '..'
 import { Playlist } from '../playlist'
 import { Description } from '../components/description'
 
@@ -19,6 +19,10 @@ export type Video = {
   shortDescription?: string
   description?: Description
   viewCount?: number
+
+  likeStatus?: LikeStatus
+  likeCount?: number
+  dislikeCount?: number
 
   author?: User
 

@@ -1,8 +1,7 @@
-import { VideoType } from '@parser/types'
-import { getVideoType } from '.'
-import { MetadataBadge } from '../components/badge'
-import { ThumbnailOverlayToggleButton } from '../components/button'
-import { combineSomeText, Text } from '../components/text'
+import * as std from '@std'
+import { getVideoType } from '..'
+import { MetadataBadge } from '../../components/badge'
+import { combineSomeText, Text } from '../../components/text'
 import {
   ChannelThumbnailWithLink,
   MovingThumbnail,
@@ -10,60 +9,57 @@ import {
   ThumbnailOverlayNowPlaying,
   ThumbnailOverlayResumePlayback,
   ThumbnailOverlayTimeStatus,
-} from '../components/thumbnail'
-import { Renderer, ServiceEndpoint, Some } from '../core'
-import { durationTextToSeconds, humanReadableToNumber, toShortHumanReadable } from '../helpers'
-import { Accessibility } from '../utility/accessibility'
+} from '../../components/thumbnail'
+import { Renderer, Some } from '../../core/internals'
+import { humanReadableToNumber } from '../../core/helpers'
+import { Accessibility } from '../../components/utility/accessibility'
 import {
   BrowseEndpoint,
   getBrowseNavigationId,
-  getBrowseNavigationUrl,
   Navigation,
   NavigationSome,
   WatchEndpoint,
-} from '../utility/navigation'
+} from '../../components/utility/navigation'
+import { ProviderName } from '@std'
+import { getLength, getViewedLength, relativeToAbsoluteDate } from './helpers'
 
 /**
  * Currently cannot parse/doesn't handle live streams and upcoming events
  */
-export function processVideoData(video: BaseVideo): BaseVideo {
-  const videoType = getVideoType(video)
+export function processVideo({ videoRenderer: video }: Video): std.Video {
   return {
-    type: videoType,
+    provider: ProviderName.YT,
+
+    type: getVideoType(video),
     id: video.videoId,
 
     title: combineSomeText(video.title),
-    shortDescription: video.descriptionSnippet ? combineSomeText(video.descriptionSnippet) : '',
+    shortDescription: video.descriptionSnippet && combineSomeText(video.descriptionSnippet),
     viewCount: humanReadableToNumber(combineSomeText(video.viewCountText)),
-    viewCountReadable: combineSomeText(video.viewCountText),
-    viewCountShortReadable: toShortHumanReadable(
-      humanReadableToNumber(combineSomeText(video.viewCountText))
-    ),
 
     author: {
       name: combineSomeText(video.ownerText),
       id: getBrowseNavigationId(video.ownerText),
-      url:
-        getBrowseNavigationUrl(video.ownerText) ?? `/c/${getBrowseNavigationId(video.ownerText)}`,
-      thumbnail:
+
+      avatar:
         video.channelThumbnailSupportedRenderers.channelThumbnailWithLinkRenderer.thumbnail
-          .thumbnails[0],
+          .thumbnails,
     },
 
-    thumbnails: video.thumbnail.thumbnails,
-    richThumbnails: video.richThumbnail?.movingThumbnailRenderer.movingThumbnailDetails.thumbnails,
+    staticThumbnail: video.thumbnail.thumbnails,
+    animatedThumbnail:
+      video.richThumbnail?.movingThumbnailRenderer.movingThumbnailDetails.thumbnails,
 
-    ...(videoType === VideoType.Static && {
-      length: durationTextToSeconds(combineSomeText(video.lengthText)),
-      lengthReadable: combineSomeText(video.lengthText),
-      relativePublishDate: combineSomeText(video.publishedTimeText),
-    }),
-  } as unknown as BaseVideo
+    length: getLength(video.lengthText),
+    viewedLength: getViewedLength(video.thumbnailOverlays, getLength(video.lengthText)),
+
+    publishDate: relativeToAbsoluteDate(combineSomeText(video.publishedTimeText)),
+  }
 }
 
 export type BaseVideo = Navigation<WatchEndpoint> & {
   /** Badges that show on the thumbnail. Used to detect live streams */
-  badges?: Renderer<MetadataBadge>[]
+  badges?: MetadataBadge[]
 
   /** Thumbnails for channel */
   channelThumbnailSupportedRenderers: ChannelThumbnailWithLink

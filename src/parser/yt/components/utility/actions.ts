@@ -1,4 +1,4 @@
-import { Action, Renderer } from "../core";
+import { Action, Renderer } from "../../core/internals";
 
 export type OpenPopupAction<Popup extends Renderer> = Action<
   'openPopup',

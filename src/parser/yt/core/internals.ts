@@ -28,12 +28,18 @@ export const findRenderer =
   <Renderers extends Renderer>(
     renderers: Renderers[]
   ):
-    | (Renderers extends Renderer<Name>
-        ? (Renderers & Renderer<Name>)[`${Name}Renderer`]
-        : never)
+    | (Renderers extends Renderer<Name> ? (Renderers & Renderer<Name>)[`${Name}Renderer`] : never)
     | undefined =>
     // @ts-ignore
     renderers.find((renderer) => name in renderer)?.[`${name}Renderer`]
+
+export const findRendererRaw =
+  <Name extends string>(name: Name) =>
+  <Renderers extends Renderer>(
+    renderers: Renderers[]
+  ): (Renderers extends Renderer<Name> ? Renderers & Renderer<Name> : never) | undefined =>
+    // @ts-ignore
+    renderers.find((renderer) => name in renderer)
 
 export type Renderer<
   Name extends string = string,

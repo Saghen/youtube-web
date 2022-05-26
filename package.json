@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@rturnq/solid-router": "^0.3.0",
+    "date-fns": "^2.28.0",
     "history": "^5.2.0",
     "ix": "^4.5.2",
     "lacer": "^0.0.1-rc4",

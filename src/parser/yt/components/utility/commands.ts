@@ -1,4 +1,4 @@
-import { Command, OptionalSubCommand, ServiceEndpoint, SubCommand } from '../core';
+import { Command, OptionalSubCommand, ServiceEndpoint, SubCommand } from '../../core/internals';
 
 export type UpdateToggleButtonCommand = Command<
   'updateToggleButton',

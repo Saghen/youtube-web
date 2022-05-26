@@ -1,48 +1,11 @@
-import { ChannelTab, ChannelTabName } from '@parser/yt/channel/types'
-import { MetadataBadge } from '@parser/yt/components/badge'
-import { SubscribeButton } from '@parser/yt/components/button'
-import { ContinuationItem } from '@parser/yt/components/continuation'
-import { RichGrid } from '@parser/yt/components/grid'
-import { RichItem } from '@parser/yt/components/item'
-import { TabWithIdentifier } from '@parser/yt/components/tab'
-import { Text } from '@parser/yt/components/text'
-import { Thumbnail } from '@parser/yt/components/thumbnail'
-import { TwoColumnBrowseResults } from '@parser/yt/components/two-column'
-import { Renderer, Some } from '@parser/yt/core'
-import { BrowseEndpoint, Navigation } from '@parser/yt/utility/navigation'
-import { Video } from '@parser/yt/video'
-import { BaseResponse, Endpoint, fetchYt } from '../core'
-
-export enum BrowseId {
-  // Should be unneeded because of guide
-  // Subscribed = 'FEchannels',
-  Recommended = 'FEwhat_to_watch',
-  History = 'FEhistory',
-}
-
-/** Must be escaped and converted to base64 */
-export enum BrowseParams {
-  ChannelHome = '\x12\bfeatured',
-  ChannelVideos = '\x12\x06videos',
-  ChannelPlaylists = '\x12\tplaylists',
-  ChannelCommunity = '\x12\tcommunity',
-  ChannelChannels = '\x12\bchannels',
-  ChannelAbout = '\x12\x05about',
-}
-
-// Recommended
-export const getRecommended = (): Promise<RecommendedResponse> =>
-  fetchYt(Endpoint.Browse, { browseId: BrowseId.Recommended })
-
-type RecommendedResponse = BaseResponse & {
-  contents: TwoColumnBrowseResults<
-    TabWithIdentifier<
-      BrowseId.Recommended,
-      RichGrid<RichItem<Video> | ContinuationItem, Renderer<'TODO'>>
-    >
-  >
-  header: Renderer<'feedTabbedHeader', { title: Some<Text> }>
-}
+import { MetadataBadge } from "../components/badge"
+import { SubscribeButton } from "../components/button"
+import { Text } from "../components/text"
+import { Thumbnail } from "../components/thumbnail"
+import { BrowseEndpoint, Navigation } from "../components/utility/navigation"
+import { BaseResponse, BrowseParams, Endpoint, fetchYt } from "../core/api"
+import { Renderer, Some } from "../core/internals"
+import { Channel, ChannelTabName } from "./types"
 
 // Channel
 export const getChannel = (channelId: string): Promise<ChannelResponse<ChannelTabName.Home>> =>
@@ -65,7 +28,7 @@ export const getChannelAbout = (
   fetchYt(Endpoint.Browse, { browseId: channelId, params: BrowseParams.ChannelAbout })
 
 type ChannelResponse<SelectedTab extends ChannelTabName> = BaseResponse & {
-  contents: TwoColumnBrowseResults<ChannelTab<SelectedTab>>
+  contents: Channel<SelectedTab>
   metadata: ChannelMetadata
   microformat: ChannelMicroFormat
   header: ChannelHeader

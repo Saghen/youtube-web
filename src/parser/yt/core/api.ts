@@ -1,3 +1,24 @@
+import { ContinuationItem } from '@yt/components/continuation'
+import { complement } from 'ramda'
+import { findRenderer, Renderer } from './internals'
+
+export enum BrowseId {
+  // Should be unneeded because of guide
+  // Subscribed = 'FEchannels',
+  Recommended = 'FEwhat_to_watch',
+  History = 'FEhistory',
+}
+
+/** Must be escaped and converted to base64 */
+export enum BrowseParams {
+  ChannelHome = '\x12\bfeatured',
+  ChannelVideos = '\x12\x06videos',
+  ChannelPlaylists = '\x12\tplaylists',
+  ChannelCommunity = '\x12\tcommunity',
+  ChannelChannels = '\x12\bchannels',
+  ChannelAbout = '\x12\x05about',
+}
+
 export const fetchYt = (endpoint: Endpoint, body: Record<string, any>) =>
   fetch(`https://www.youtube.com/youtubei/v1/${endpoint}`, {
     headers: {
@@ -20,6 +41,23 @@ export const fetchYt = (endpoint: Endpoint, body: Record<string, any>) =>
 
 export const getEndpointContinuation = (endpoint: Endpoint) => (continuation: string) =>
   fetchYt(endpoint, { continuation })
+
+export const findContinuation = (items: (Renderer | ContinuationItem)[]): string | undefined =>
+  findRenderer('continuationItem')(items)?.continuationEndpoint.continuationCommand.token
+
+export const isNotContinuationItem = <T extends Renderer>(item: T | ContinuationItem): item is T =>
+  !('continuationItemRenderer' in item)
+
+export async function* makeContinuationIterator<T extends Renderer>(
+  getResults: (continuationToken?: string) => Promise<(T | ContinuationItem)[]>
+): AsyncGenerator<T[], void, void> {
+  let continuationToken: string | undefined
+  do {
+    const results = await getResults(continuationToken)
+    continuationToken = findContinuation(results)
+    yield results.filter(isNotContinuationItem)
+  } while (continuationToken)
+}
 
 const getContext = () =>
   Object.freeze({

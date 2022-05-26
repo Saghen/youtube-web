@@ -1,6 +1,6 @@
-import { Renderer } from '../types/core'
-import { Accessibility } from '../utility/accessibility'
-import { Tracking } from '../utility/tracking'
+import { Renderer } from '../core/internals'
+import { Accessibility } from './utility/accessibility'
+import { Tracking } from './utility/tracking'
 import { Icon } from './icon'
 
 export type MetadataBadge = Renderer<

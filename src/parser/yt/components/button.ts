@@ -1,10 +1,10 @@
-import { Command, CommandMetadata, ExtractCommand, ExtractRawCommand, Renderer, Some, SubCommand } from '../types/core'
-import { Accessibility } from '../utility/accessibility'
+import { Command, CommandMetadata, ExtractCommand, ExtractRawCommand, Renderer, Some, SubCommand } from '../core/internals'
+import { Accessibility } from './utility/accessibility'
 import { Text } from './text'
-import { Tracking } from '../utility/tracking'
-import { LikeEndpoint, OfflineVideoEndpoint, SignalServiceEndpoint, SubscribeEndpoint } from '../utility/endpoints'
-import { OpenPopupAction } from '../utility/actions'
-import { OnAddCommand, UpdateToggleButtonCommand } from '../utility/commands'
+import { Tracking } from './utility/tracking'
+import { LikeEndpoint, OfflineVideoEndpoint, SignalServiceEndpoint, SubscribeEndpoint } from './utility/endpoints'
+import { OpenPopupAction } from './utility/actions'
+import { OnAddCommand, UpdateToggleButtonCommand } from './utility/commands'
 import { Icon } from './icon'
 
 type Size = string // Never seen anything other than "SIZE_DEFAULT"

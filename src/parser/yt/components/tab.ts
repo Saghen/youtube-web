@@ -1,5 +1,5 @@
-import { CommandMetadata, Endpoint, ExtractCommand, Renderer } from '../core'
-import { BrowseEndpoint, Navigation } from '../utility/navigation'
+import { CommandMetadata, Endpoint, ExtractCommand, Renderer } from '../core/internals'
+import { BrowseEndpoint, Navigation } from './utility/navigation'
 
 // FIXME: Only checked to cover tab found on channels
 export type Tab<Title extends string, Content extends Renderer, Selected extends boolean> = Renderer<

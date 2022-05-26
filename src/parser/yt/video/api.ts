@@ -1,12 +1,133 @@
-import { NavigationSome, UrlEndpoint, WatchEndpoint } from '@parser/yt/utility/navigation'
-import { Text } from '../../components/text'
-import { Thumbnail } from '../../components/thumbnail'
-import { Renderer, Runs, Some } from '../../core'
-import { Endpoint, fetchYt, BaseResponse } from '../core'
+import { BaseResponse, BrowseId, Endpoint, fetchYt } from '../core/api'
+import { Button } from '../components/button'
+import { ContinuationItem } from '../components/continuation'
+import { ItemSection } from '../components/core'
+import { RichGrid } from '../components/grid'
+import { RichItem } from '../components/item'
+import { TabWithIdentifier } from '../components/tab'
+import { Text } from '../components/text'
+import { Thumbnail } from '../components/thumbnail'
+import { TwoColumnBrowseResults, TwoColumnWatchNext } from '../components/two-column'
+import { CurrentVideoEndpoint } from '../components/utility/endpoints'
+import {
+  BrowseEndpoint,
+  Navigation,
+  NavigationSome,
+  UrlEndpoint,
+  WatchEndpoint,
+} from '../components/utility/navigation'
+import { Action, Command, Renderer, Some } from '../core/internals'
+import { CompactVideo } from './processors/compact'
+import { VideoPrimaryInfo, VideoSecondaryInfo } from './processors/full'
+import { BaseVideo, Video } from './processors/regular'
+
+export const getRecommended = (continuationToken?: string): Promise<RecommendedResponse> =>
+  fetchYt(
+    Endpoint.Browse,
+    continuationToken ? { continuation: continuationToken } : { browseId: BrowseId.Recommended }
+  )
 
 export const getPlayer = (videoId: string): Promise<PlayerResponse> =>
   fetchYt(Endpoint.Player, { videoId })
 
+export const getVideo = (videoId: string): Promise<VideoResponse> =>
+  fetchYt(Endpoint.Next, { videoId })
+
+export const getCompactVideoContinuation = (
+  continuationToken: string
+): Promise<CompactContinuationResponse> =>
+  fetchYt(Endpoint.Next, { continuation: continuationToken })
+
+// Types
+
+// Recommended
+type RecommendedResponse = BaseResponse & {
+  contents: TwoColumnBrowseResults<
+    TabWithIdentifier<
+      BrowseId.Recommended,
+      RichGrid<RichItem<Video> | ContinuationItem, Renderer<'TODO'>>
+    >
+  >
+  header: Renderer<'feedTabbedHeader', { title: Some<Text> }>
+}
+
+// Video
+type VideoResponse = BaseResponse & {
+  contents: TwoColumnWatchNext<
+    | VideoPrimaryInfo
+    | VideoSecondaryInfo
+    | ItemSection<Renderer<'commentsEntryPointHeader', { TODO: true }>, 'comments-entry-point'>
+    | ItemSection<ContinuationItem, 'comment-item-section'>,
+    CompactVideo | ContinuationItem
+  >
+  currentVideoEndpoint: CurrentVideoEndpoint
+  playerOverlays: Renderer<
+    'playerOverlay',
+    {
+      endScreen: WatchNextEndScreen<EndScreenVideo | EndScreenPlaylist>
+      autoplay: PlayerOverlayAutoplay
+      shareButton: Button<Command<'TODO'>>
+      addToMenu: Button<Command<'TODO'>>
+      videoDetails: Renderer<'TODO'>
+    }
+  >
+
+  overlay: Renderer<'tooltip', { TODO: true }>
+  engagementPanels: Renderer<'engagementPanelSectionList', { TODO: true }>
+}
+
+type WatchNextEndScreen<Item extends Renderer> = Renderer<'watchNextEndScreen', { results: Item[] }>
+
+type EndScreenVideo = Renderer<
+  'endScreenVideo',
+  Pick<
+    BaseVideo,
+    | 'videoId'
+    | 'thumbnail'
+    | 'title'
+    | 'shortBylineText'
+    | 'lengthText'
+    | 'shortViewCountText'
+    | 'publishedTimeText'
+    | 'thumbnailOverlays'
+  > &
+    Navigation<WatchEndpoint> & { lengthInSeconds: number }
+>
+
+type EndScreenPlaylist = Renderer<
+  'endScreenPlaylist',
+  Navigation<WatchEndpoint> & {
+    playlistId: string
+    title: Some<Text>
+    thumbnail: Thumbnail
+    longBylineText: Some<Text>
+    videoCountText: Some<Text>
+    lengthInSeconds: number
+  }
+>
+
+type PlayerOverlayAutoplay = Renderer<
+  'playerOverlayAutoplay',
+  {
+    byline: Some<NavigationSome<WatchEndpoint | BrowseEndpoint | UrlEndpoint, Text>>
+    pauseText: Some<Text>
+    background: Thumbnail
+    countDownSecs: number
+    countDownSecsForFullscreen: number
+
+    cancelButton: Button<Command<'TODO'>>
+    nextButton: Button<Command<'TODO'>>
+    closeButton: Button<Command<'TODO'>>
+    preferImmediateRedirect: boolean
+    webShowNewAutonavCountdown?: boolean
+    webShowBigThumbnailEndscreen?: boolean
+  } & Pick<
+    BaseVideo,
+    'title' | 'videoId' | 'publishedTimeText' | 'shortViewCountText' | 'thumbnailOverlays'
+  >
+>
+
+// Player
 export type PlayerResponse = BaseResponse & {
   playabilityStatus: {
     status: 'OK'
@@ -41,7 +162,7 @@ export type PlayerResponse = BaseResponse & {
   playerConfig: Record<string, any>
 }
 
-type VideoDetails = {
+export type VideoDetails = {
   videoId: string
   title: string
   lengthSeconds: string
@@ -63,7 +184,7 @@ type VideoDetails = {
 type MicroFormat = Renderer<
   'playerMicroformat',
   {
-    title: Runs<Text>
+    title: Some<Text>
     /** TODO: Check if this is a short or full description */
     description: Some<NavigationSome<UrlEndpoint | WatchEndpoint, Text>>
     lengthSeconds: string
@@ -199,4 +320,14 @@ type AdaptivePlayerAudioFormat = {
     end: string
   }
   projectionType: 'RECTANGULAR'
+}
+
+// Compact Video Continuation
+type CompactContinuationResponse = BaseResponse & {
+  onResponseReceivedEndpoints: [
+    Action<
+      'appendContinuationItems',
+      { continuationItems: (CompactVideo | ContinuationItem)[]; targetId: string }
+    >
+  ]
 }
